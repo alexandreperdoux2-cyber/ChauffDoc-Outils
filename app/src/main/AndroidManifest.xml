@@ -4,8 +4,9 @@
     <application
         android:allowBackup="true"
         android:label="Chauff'Doc"
-        android:icon="@drawable/ic_launcher"
-        android:theme="@style/AppTheme">
+        android:icon="@drawable/chauffdoc_app_icon"
+        android:theme="@style/AppTheme"
+        android:windowOptOutEdgeToEdgeEnforcement="true">
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
