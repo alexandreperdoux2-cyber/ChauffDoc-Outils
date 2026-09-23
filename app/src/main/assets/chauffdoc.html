@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c2447">
+<title>Chauff'Doc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ Design tokens ============ */
+:root{
+  --navy-950:#081226; --navy-900:#0b1d3a; --navy-800:#12295a; --navy-700:#1b3a78;
+  --flame:#ff6a1f; --flame-2:#ffab3d; --flame-d:#e0540c;
+  --bg:#f7f9fc; --surface:#ffffff; --card:#eef2f9; --card-2:#e4ebf5;
+  --text:#0d1f3d; --muted:#63739a; --line:#dde4f0;
+  --ok:#159a4a; --ok-bg:#e6f7ec; --ko:#e13333; --ko-bg:#fdecec;
+  --fan-bg:#0d2549; --fan-ring:#1c3d76; --blade-off:#56698c; --arc:#3f7de0;
+  --r-lg:22px; --r-md:16px; --r-sm:11px;
+  --sh-card:0 1px 2px rgba(13,31,61,.04), 0 8px 20px -12px rgba(13,31,61,.18);
+  --sh-pop:0 10px 24px -8px rgba(255,106,31,.45);
+  --grad-brand:linear-gradient(135deg,var(--flame) 0%,var(--flame-d) 100%);
+  --grad-header:radial-gradient(120% 140% at 18% 0%, var(--navy-700) 0%, var(--navy-900) 46%, var(--navy-950) 100%);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1a33; --surface:#0f2344; --card:#152b52; --card-2:#1a3260;
+    --text:#eef3fc; --muted:#93a6cc; --line:#25406e;
+    --ok:#49d986; --ok-bg:#103a29; --ko:#ff6b6b; --ko-bg:#3d1d21;
+    --fan-bg:#081a33; --fan-ring:#1c3d76; --blade-off:#5f7096; --arc:#6ea2ff;
+    --sh-card:0 1px 2px rgba(0,0,0,.2), 0 10px 24px -14px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1a33; --surface:#0f2344; --card:#152b52; --card-2:#1a3260;
+  --text:#eef3fc; --muted:#93a6cc; --line:#25406e;
+  --ok:#49d986; --ok-bg:#103a29; --ko:#ff6b6b; --ko-bg:#3d1d21;
+  --fan-bg:#081a33; --fan-ring:#1c3d76; --blade-off:#5f7096; --arc:#6ea2ff;
+  --sh-card:0 1px 2px rgba(0,0,0,.2), 0 10px 24px -14px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+html{height:100%;background:var(--navy-950);scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;height:100%;background:var(--navy-950);color:var(--text);
+  font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--flame);outline-offset:2px;border-radius:4px}
+
+.app{height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;position:relative}
+
+/* ============ En-tête ============ */
+.top{background:var(--grad-header);padding:16px 18px 14px;display:flex;flex-direction:column;align-items:center;flex:none;position:relative;overflow:hidden}
+.top::before{
+  content:"";position:absolute;top:-40%;left:50%;width:260px;height:260px;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(255,106,31,.35) 0%,rgba(255,106,31,0) 68%);pointer-events:none;
+}
+.brand{display:flex;align-items:center;gap:10px;position:relative}
+.brand svg{width:36px;height:36px;filter:drop-shadow(0 3px 8px rgba(255,106,31,.5))}
+.flame-glow{animation:flicker 3.4s ease-in-out infinite}
+.word{font-weight:800;font-size:1.85rem;letter-spacing:-.03em;color:#fff;line-height:1}
+.word b{background:linear-gradient(135deg,var(--flame-2),var(--flame));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.tag{font-size:.62rem;letter-spacing:.05em;color:#9fb2d8;margin-top:5px;text-align:center;font-weight:500}
+@keyframes flicker{0%,100%{filter:drop-shadow(0 3px 8px rgba(255,106,31,.5)) brightness(1)}50%{filter:drop-shadow(0 3px 12px rgba(255,171,61,.7)) brightness(1.12)}}
+
+/* ============ Écrans ============ */
+.screens{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.screen{padding:20px 18px 24px;max-width:100%}
+.title{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+.title svg{width:42px;height:42px;flex:none}
+.title h1{margin:0;font-size:1.5rem;line-height:1.1;font-weight:800;letter-spacing:-.02em}
+.title p{margin:3px 0 0;color:var(--muted);font-size:.9rem}
+.ico{color:var(--text)}
+.ico .o{color:var(--flame)}
+
+.card{background:var(--surface);border-radius:var(--r-md);padding:14px 16px;box-shadow:var(--sh-card)}
+.info{display:flex;gap:12px;align-items:center;font-size:.85rem;color:var(--text)}
+.info .i{flex:none;width:26px;height:26px;border-radius:50%;background:var(--grad-brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.info p{margin:0}
+
+/* ============ Magnetic Tool ============ */
+.fanwrap{display:grid;place-items:center;margin:6px 0 16px;position:relative}
+.fanwrap::before{content:"";position:absolute;width:min(70vw,280px);height:min(70vw,280px);border-radius:50%;background:radial-gradient(circle,rgba(255,106,31,0) 55%,rgba(255,106,31,0) 100%);transition:background .3s;pointer-events:none}
+.fanwrap:has(#fan[data-on="1"])::before{background:radial-gradient(circle,rgba(255,106,31,.16) 0%,rgba(255,106,31,0) 62%)}
+#fan{width:min(62vw,250px);height:auto;display:block;overflow:visible;position:relative}
+.fan-rot{transform-origin:100px 100px;transform-box:view-box}
+.fan[data-on="1"] .fan-rot{animation:spin .55s linear infinite}
+.fan{--blade:var(--blade-off)}
+.fan[data-on="1"]{--blade:var(--flame)}
+.waves{fill:none;stroke:var(--arc);stroke-width:3;stroke-linecap:round;opacity:0;transition:opacity .25s}
+.fan[data-on="1"] .waves{opacity:.85}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.status{display:flex;align-items:center;gap:13px;border-radius:var(--r-md);padding:14px 16px;background:var(--surface);box-shadow:var(--sh-card);border-left:4px solid var(--line)}
+.status .ic{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center}
+.status .ic svg{width:100%;height:100%}
+.status h2{margin:0;font-size:1.08rem;line-height:1.15;font-weight:700}
+.status p{margin:2px 0 0;font-size:.85rem;color:var(--text)}
+.status.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+.status.ok h2{color:var(--ok)}
+.status.ko{border-left-color:var(--ko);background:var(--ko-bg)}
+.status.ko h2{color:var(--ko)}
+
+.field{display:flex;align-items:center;gap:14px;margin-top:10px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:34px;flex:none}
+.bars i{display:block;width:9px;border-radius:3px;background:var(--card-2)}
+.bars i:nth-child(1){height:10px}.bars i:nth-child(2){height:20px}.bars i:nth-child(3){height:32px}
+.bars i.on{background:var(--flame)}
+.field .lbl{font-size:.85rem;color:var(--muted)}
+.field .val{font-size:1.75rem;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.field .sub{font-size:.75rem;color:var(--muted)}
+#magInfo{margin-top:10px}
+.wave{display:block;width:100%;height:56px;margin-top:10px}
+
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tile{background:var(--navy-900);color:#fff;border-radius:var(--r-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:.76rem;font-weight:500;text-align:center;min-height:76px;position:relative;overflow:hidden;transition:transform .12s}
+.tile:active{transform:scale(.96)}
+.tile[aria-pressed="false"]{opacity:.55}
+.tile .prog{position:absolute;left:12px;right:12px;bottom:8px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);overflow:hidden}
+.tile .prog i{display:block;height:100%;width:0;background:var(--flame);border-radius:2px}
+.demo{margin-top:10px;width:100%;padding:11px;border-radius:var(--r-sm);border:1.5px dashed var(--line);color:var(--muted);font-size:.85rem;font-weight:500}
+
+/* ============ Top Compteur ============ */
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.seg button{padding:10px 0;border-radius:var(--r-sm);background:var(--card);font-weight:600;font-size:.92rem;transition:transform .1s}
+.seg button[aria-pressed="true"]{background:var(--grad-brand);color:#fff;box-shadow:var(--sh-pop)}
+.seg button:disabled{opacity:.5}
+.lab{display:block;margin:16px 0 6px;font-weight:600;font-size:.88rem;color:var(--muted)}
+.inp{display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--surface);overflow:hidden;transition:border-color .12s}
+.inp:focus-within{border-color:var(--flame);box-shadow:0 0 0 3px rgba(255,106,31,.14)}
+.inp input{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;font-weight:700;font-size:1.15rem;padding:11px 13px;outline:0}
+.inp span{display:grid;place-items:center;padding:0 16px;background:var(--card);color:var(--text);font-size:.95rem;font-weight:600;border-left:1.5px solid var(--line)}
+.timer{margin-top:16px;text-align:center;background:var(--surface);border-radius:var(--r-md);padding:16px;box-shadow:var(--sh-card)}
+.timer .t{font-size:2.5rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.timer p{margin:4px 0 10px;font-size:.85rem;color:var(--muted)}
+.timer .pb{height:6px;border-radius:3px;background:var(--card);overflow:hidden}
+.timer .pb i{display:block;height:100%;width:0;background:var(--grad-brand)}
+.result{margin-top:16px;border-radius:var(--r-md);padding:14px 16px;background:var(--card);border-left:4px solid var(--line);box-shadow:var(--sh-card)}
+.result.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+.result.ko{border-left-color:var(--ko);background:var(--ko-bg)}
+.result .k{font-size:.85rem}
+.result .big{font-size:2.1rem;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.result.ok .big{color:var(--text)}
+.result .row{display:flex;align-items:center;gap:14px}
+.result .row .bars i.on{background:var(--ok)}
+.result.ko .row .bars i.on{background:var(--ko)}
+.result .flow{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:.85rem}
+.result.ko .msg{color:var(--ko);font-weight:600;font-size:.9rem}
+.result .msg{margin:0}
+.cta{margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--grad-brand);color:#fff;font-weight:700;font-size:1rem;padding:15px;border-radius:var(--r-sm);box-shadow:var(--sh-pop);transition:transform .1s}
+.cta:active{transform:scale(.98)}
+.cta svg{width:22px;height:22px}
+.note{margin-top:16px}
+
+/* ============ Accueil ============ */
+.hello{margin:0 0 5px;font-size:1.5rem;font-weight:800;line-height:1.15;letter-spacing:-.02em}
+.lead{margin:0 0 18px;color:var(--muted)}
+.tool{width:100%;display:flex;align-items:center;gap:14px;text-align:left;background:var(--surface);border-radius:var(--r-lg);padding:15px;margin-bottom:12px;box-shadow:var(--sh-card);transition:transform .12s}
+.tool:active{transform:scale(.98)}
+.tool .badge{flex:none;width:52px;height:52px;border-radius:15px;background:var(--grad-brand);display:grid;place-items:center;color:#fff;box-shadow:var(--sh-pop)}
+.tool .badge svg{width:28px;height:28px}
+.tool b{display:block;font-size:1.05rem;font-weight:700}
+.tool span{display:block;font-size:.84rem;color:var(--muted);margin-top:1px}
+.tool .go{flex:none;width:18px;height:18px;color:var(--muted)}
+.sensor{display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ko);flex:none;box-shadow:0 0 0 4px var(--ko-bg)}
+.dot.on{background:var(--ok);box-shadow:0 0 0 4px var(--ok-bg)}
+.hint{margin:8px 0 0;font-size:.78rem;color:var(--muted)}
+
+/* ============ Paramètres ============ */
+.set{display:flex;align-items:center;gap:14px;background:var(--surface);border-radius:var(--r-md);padding:13px 15px;margin-bottom:10px;width:100%;text-align:left;box-shadow:var(--sh-card)}
+.set>svg{width:26px;height:26px;flex:none;color:var(--flame)}
+.set .tx{flex:1;min-width:0}
+.set .tx b{display:block;font-weight:700;font-size:.98rem}
+.set .tx span{display:block;font-size:.8rem;color:var(--muted);margin-top:1px}
+.sw{flex:none;width:50px;height:29px;border-radius:15px;background:var(--card-2);position:relative;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.sw[aria-checked="true"]{background:var(--grad-brand)}
+.sw[aria-checked="true"]::after{transform:translateX(21px)}
+.mini{display:flex;gap:6px;flex:none;flex-wrap:wrap;justify-content:flex-end}
+.mini button{padding:7px 10px;border-radius:9px;background:var(--card);font-size:.8rem;font-weight:600}
+.mini button[aria-pressed="true"]{background:var(--grad-brand);color:#fff}
+.chev{width:17px;height:17px;flex:none;color:var(--muted);transition:transform .15s}
+.set[aria-expanded="true"] .chev{transform:rotate(90deg);color:var(--flame)}
+.more{background:var(--card);border-radius:var(--r-md);padding:13px 15px;margin:-2px 0 10px;font-size:.85rem;color:var(--text)}
+.more p{margin:0 0 8px}.more p:last-child{margin:0}
+.slogan{margin:26px 0 6px;text-align:center}
+.slogan .brand{justify-content:center}
+.slogan svg{width:50px;height:50px}
+.slogan .word{color:var(--text);font-size:1.9rem}
+.slogan .word b{background:var(--grad-brand);-webkit-background-clip:text;background-clip:text;color:transparent}
+.slogan p{margin:9px 0 0;color:var(--muted);font-weight:500;font-size:.92rem}
+
+/* ============ Navigation ============ */
+.nav{flex:none;display:grid;grid-template-columns:repeat(4,1fr);background:var(--navy-950);padding:9px 6px calc(6px + env(safe-area-inset-bottom,0px));gap:4px}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;color:#8ea0c8;font-size:.66rem;font-weight:600;padding:6px 2px;border-radius:13px;transition:background .15s,color .15s}
+.nav button svg{width:24px;height:24px}
+.nav button[aria-selected="true"]{color:#fff;background:rgba(255,106,31,.18)}
+.nav button[aria-selected="true"] svg{color:var(--flame)}
+
+@media (prefers-reduced-motion:reduce){
+  .fan[data-on="1"] .fan-rot{animation:none}
+  .sw,.sw::after,.chev,.waves,.flame-glow{animation:none;transition:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true" class="flame-glow">
+        <path d="M34 3C35 14 51 22 51 40a19 19 0 0 1-38 0c0-9 5-15 9-20 1 6 4 9 7 10-2-10 0-20 5-27Z" fill="#ff6a13"/>
+        <path d="M32 27c4 8 10 12 10 18a10 10 0 0 1-20 0c0-6 6-10 10-18Z" fill="#fff"/>
+        <path d="M32 40c2 3 5 5 5 8a5 5 0 0 1-10 0c0-3 3-5 5-8Z" fill="#12305e"/>
+      </svg>
+      <div class="word">Chauff'<b>Doc</b></div>
+    </div>
+    <div class="tag">VOTRE ALLIÉ POUR DES CHAUDIÈRES EN BONNE SANTÉ</div>
+  </header>
+
+  <main class="screens" id="screens">
+
+    <!-- ACCUEIL -->
+    <section class="screen" id="tab-home" role="tabpanel">
+      <h1 class="hello">Vos outils de diagnostic</h1>
+      <p class="lead">Deux mesures rapides pour vérifier une chaudière sur le terrain.</p>
+
+      <button class="tool" data-go="magnetic">
+        <div class="badge"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v11a9 9 0 0 0 18 0V5"/><path d="M4 9h6M22 9h6" stroke="#fff"/></svg></div>
+        <div><b>Magnetic Tool</b><span>Le circulateur tourne-t-il ?</span></div>
+        <svg class="go" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3l7 7-7 7"/></svg>
+      </button>
+      <button class="tool" data-go="gas">
+        <div class="badge"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="18" r="10"/><path d="M13 3h6M16 18l4-6"/></svg></div>
+        <div><b>Top Compteur gaz</b><span>Écart et débit entre deux index</span></div>
+        <svg class="go" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3l7 7-7 7"/></svg>
+      </button>
+
+      <div class="card">
+        <div class="sensor"><span class="dot" id="sensorDot"></span><span id="sensorTxt">Capteur magnétique</span></div>
+        <p class="hint" id="sensorHint"></p>
+      </div>
+    </section>
+
+    <!-- MAGNETIC TOOL -->
+    <section class="screen" id="tab-magnetic" role="tabpanel" hidden>
+      <div class="title">
+        <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="butt" class="ico" aria-hidden="true"><path d="M9 5v15a11 11 0 0 0 22 0V5"/><path d="M6.5 11h5M28.5 11h5" stroke="var(--orange)" stroke-width="5"/></svg>
+        <div><h1>Magnetic Tool</h1><p>Test circulateur chaudière</p></div>
+      </div>
+
+      <div class="fanwrap">
+        <svg id="fan" class="fan" data-on="0" viewBox="0 0 200 200" role="img" aria-label="Roue du circulateur">
+          <path class="waves" d="M22 62Q8 100 22 138"/><path class="waves" d="M12 50Q-8 100 12 150"/>
+          <path class="waves" d="M178 62Q192 100 178 138"/><path class="waves" d="M188 50Q208 100 188 150"/>
+          <circle cx="100" cy="100" r="96" fill="var(--fan-ring)"/>
+          <circle cx="100" cy="100" r="88" fill="var(--fan-bg)"/>
+          <g class="fan-rot"><g transform="translate(100 100)" fill="var(--blade)">
+            <path id="blade" d="M0 -10C26 -20 52 -36 42 -76C10 -68 -8 -40 0 -10Z"/>
+            <use href="#blade" transform="rotate(72)"/><use href="#blade" transform="rotate(144)"/>
+            <use href="#blade" transform="rotate(216)"/><use href="#blade" transform="rotate(288)"/>
+          </g></g>
+          <circle cx="100" cy="100" r="16" fill="#8794a8"/><circle cx="100" cy="100" r="10" fill="#c3ccd9"/>
+        </svg>
+      </div>
+
+      <div class="status" id="magCard" aria-live="polite">
+        <div class="ic" id="magIcon"></div>
+        <div><h2 id="magTitle"></h2><p id="magSub"></p></div>
+      </div>
+
+      <div class="card field">
+        <div class="bars" id="bars" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div>
+          <div class="lbl">Champ magnétique</div>
+          <div class="val"><span id="fieldVal">–</span> <small style="font-size:1rem;font-weight:600">µT</small></div>
+          <div class="sub" id="fieldSub">Variation : –</div>
+        </div>
+      </div>
+
+      <div class="card info" id="magInfo">
+        <span class="i">i</span>
+        <p>Approchez le haut ou l'arrière de votre téléphone sur le circulateur. La roue se met à tourner en cas de détection.</p>
+      </div>
+
+      <canvas class="wave" id="wave" aria-hidden="true"></canvas>
+
+      <button class="demo" id="btnDemo" hidden>Lancer une simulation pour voir l'écran</button>
+
+      <div class="tiles">
+        <button class="tile" id="btnSound" aria-pressed="true">
+          <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M4 12h5l7-6v20l-7-6H4z"/><path d="M20 11q4 5 0 10M23 8q7 8 0 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span id="soundLbl">Son activé</span>
+        </button>
+        <button class="tile" id="btnVibe" aria-pressed="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="10" y="4" width="12" height="24" rx="3"/><path d="M4 11v10M28 11v10M7 8v16M25 8v16"/></svg>
+          <span id="vibeLbl">Vibration activée</span>
+        </button>
+        <button class="tile" id="btnTest">
+          <span id="testIcon"></span>
+          <span id="testLbl">Lancer le test</span>
+          <span class="prog" id="testProgWrap" hidden><i id="testProg"></i></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- TOP COMPTEUR -->
+    <section class="screen" id="tab-gas" role="tabpanel" hidden>
+      <div class="title">
+        <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" class="ico" aria-hidden="true"><circle cx="20" cy="23" r="13"/><path d="M16 4h8M20 23l5-8" stroke="var(--orange)"/><path d="M33 9l3 3"/></svg>
+        <div><h1>Top Compteur gaz</h1><p>Mesure de débit simplifiée</p></div>
+      </div>
+
+      <div class="seg" id="durations" role="group" aria-label="Durée du test">
+        <button data-s="30" aria-pressed="false">30 s</button>
+        <button data-s="60" aria-pressed="true">1 min</button>
+        <button data-s="120" aria-pressed="false">2 min</button>
+        <button data-s="300" aria-pressed="false">5 min</button>
+      </div>
+
+      <div class="card info"><span class="i">i</span><p>Relevez l'index de votre compteur gaz, puis lancez le test.</p></div>
+
+      <label class="lab" for="gStart">Index de départ</label>
+      <div class="inp"><input id="gStart" inputmode="decimal" autocomplete="off" placeholder="0"><span id="uStart">m³</span></div>
+
+      <label class="lab" for="gEnd">Index de fin</label>
+      <div class="inp"><input id="gEnd" inputmode="decimal" autocomplete="off" placeholder="0"><span id="uEnd">m³</span></div>
+
+      <div class="card timer" id="gTimerCard" hidden>
+        <div class="t" id="gTime">01:00</div>
+        <p id="gTimeMsg">Ne touchez pas au compteur, le test est en cours.</p>
+        <div class="pb"><i id="gProg"></i></div>
+      </div>
+
+      <div class="result" id="gResult" aria-live="polite"></div>
+
+      <button class="cta" id="gBtn"></button>
+
+      <div class="card info note"><span class="i">i</span><p>Ce test vous permet d'estimer un débit sur une courte durée. À utiliser à titre indicatif dans le cadre d'un diagnostic.</p></div>
+    </section>
+
+    <!-- PARAMÈTRES -->
+    <section class="screen" id="tab-settings" role="tabpanel" hidden>
+      <div class="title">
+        <svg viewBox="0 0 40 40" fill="currentColor" class="ico" aria-hidden="true"><path d="M17 3h6l1 5 3 1.4 4.4-2.8 4.2 4.2-2.8 4.4L34 18l5 1v6l-5 1-1.4 3 2.8 4.4-4.2 4.2-4.4-2.8L23 36l-1 5h-6l-1-5-3-1.4-4.4 2.8-4.2-4.2 2.8-4.4L4 26l-5-1v-6l5-1 1.4-3-2.8-4.4 4.2-4.2 4.4 2.8L16 8zM20 15a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" transform="translate(.5 -1) scale(.95)" fill-rule="evenodd"/></svg>
+        <div><h1>Paramètres</h1></div>
+      </div>
+
+      <div class="set">
+        <svg viewBox="0 0 32 32" fill="currentColor" class="ico" aria-hidden="true"><path d="M4 12h5l7-6v20l-7-6H4z"/><path d="M20 11q4 5 0 10M23 8q7 8 0 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <div class="tx"><b>Sons</b><span>Activer / désactiver les sons</span></div>
+        <button class="sw" id="swSound" role="switch" aria-checked="true" aria-label="Sons"></button>
+      </div>
+      <div class="set">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="ico" aria-hidden="true"><rect x="10" y="4" width="12" height="24" rx="3"/><path d="M4 11v10M28 11v10M7 8v16M25 8v16"/></svg>
+        <div class="tx"><b>Vibrations</b><span>Activer / désactiver les vibrations</span></div>
+        <button class="sw" id="swVibe" role="switch" aria-checked="true" aria-label="Vibrations"></button>
+      </div>
+      <div class="set">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="ico" aria-hidden="true"><path d="M5 22 22 5l5 5L10 27z"/><path d="M12 15l3 3M16 11l2 2M9 19l2 2"/></svg>
+        <div class="tx"><b>Unités</b><span>Pour les index du compteur</span></div>
+        <div class="mini" id="unitSeg" role="group" aria-label="Unités">
+          <button data-u="m3" aria-pressed="true">m³</button><button data-u="l" aria-pressed="false">L</button>
+        </div>
+      </div>
+      <div class="set">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" class="ico" aria-hidden="true"><path d="M4 22h4M24 22h4M8 22l3-8 3 12 3-16 3 12 2-6"/></svg>
+        <div class="tx"><b>Sensibilité</b><span>Détection du circulateur</span></div>
+        <div class="mini" id="sensSeg" role="group" aria-label="Sensibilité">
+          <button data-v="faible" aria-pressed="false">Faible</button><button data-v="normale" aria-pressed="true">Normale</button><button data-v="elevee" aria-pressed="false">Élevée</button>
+        </div>
+      </div>
+      <div class="set">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="ico" aria-hidden="true"><path d="M16 4c5 7 9 11 9 16a9 9 0 0 1-18 0c0-5 4-9 9-16z"/></svg>
+        <div class="tx"><b>Seuil de fuite</b><span>Écart maxi jugé normal au compteur</span></div>
+        <div class="mini" id="leakSeg" role="group" aria-label="Seuil de fuite">
+          <button data-l="0.0005" aria-pressed="false">0,5 L</button><button data-l="0.001" aria-pressed="true">1 L</button><button data-l="0.002" aria-pressed="false">2 L</button><button data-l="0.005" aria-pressed="false">5 L</button>
+        </div>
+      </div>
+
+      <button class="set" data-more="about" aria-expanded="false">
+        <svg viewBox="0 0 32 32" class="ico" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="currentColor"/><path d="M16 14v8" stroke="var(--bg)" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="10" r="1.8" fill="var(--bg)"/></svg>
+        <div class="tx"><b>À propos</b><span>Chauff'Doc v1.0</span></div>
+        <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3l7 7-7 7"/></svg>
+      </button>
+      <div class="more" id="more-about" hidden>
+        <p>Chauff'Doc regroupe des outils simples pour le diagnostic de chaudières : un test magnétique du circulateur et un calcul d'écart et de débit sur le compteur gaz.</p>
+        <p>Version 1.0</p>
+      </div>
+
+      <button class="set" data-more="legal" aria-expanded="false">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="ico" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M12 15h9M12 20h9M12 25h6"/></svg>
+        <div class="tx"><b>Mentions légales</b></div>
+        <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3l7 7-7 7"/></svg>
+      </button>
+      <div class="more" id="more-legal" hidden>
+        <p>Les mesures affichées sont indicatives. Elles ne remplacent ni un contrôle réalisé par un professionnel qualifié, ni les instruments de mesure réglementaires.</p>
+        <p>La détection magnétique dépend du modèle de téléphone, de sa position et du circulateur testé.</p>
+      </div>
+
+      <div class="slogan">
+        <div class="brand">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M34 3C35 14 51 22 51 40a19 19 0 0 1-38 0c0-9 5-15 9-20 1 6 4 9 7 10-2-10 0-20 5-27Z" fill="#ff6a13"/>
+            <path d="M32 27c4 8 10 12 10 18a10 10 0 0 1-20 0c0-6 6-10 10-18Z" fill="#fff"/>
+            <path d="M32 40c2 3 5 5 5 8a5 5 0 0 1-10 0c0-3 3-5 5-8Z" fill="#12305e"/>
+          </svg>
+          <div class="word">Chauff'<b>Doc</b></div>
+        </div>
+        <p>Des outils simples pour un diagnostic efficace !</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav" role="tablist" aria-label="Navigation">
+    <button role="tab" data-tab="home" aria-selected="true">
+      <svg viewBox="0 0 26 26" fill="currentColor" aria-hidden="true"><path d="M13 3 2 12h3v10h6v-6h4v6h6V12h3z"/></svg>Accueil</button>
+    <button role="tab" data-tab="magnetic" aria-selected="false">
+      <svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v9a7 7 0 0 0 14 0V3"/><path d="M3 7h6M17 7h6"/></svg>Magnetic Tool</button>
+    <button role="tab" data-tab="gas" aria-selected="false">
+      <svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="13" cy="15" r="8"/><path d="M10 3h6M13 15l3-5"/></svg>Top Compteur</button>
+    <button role="tab" data-tab="settings" aria-selected="false">
+      <svg viewBox="0 0 26 26" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M11 2h4l.6 3 1.8.8 2.6-1.7 2.8 2.8-1.7 2.6.8 1.8 3 .6v4l-3 .6-.8 1.8 1.7 2.6-2.8 2.8-2.6-1.7-1.8.8-.6 3h-4l-.6-3-1.8-.8-2.6 1.7-2.8-2.8 1.7-2.6-.8-1.8-3-.6v-4l3-.6.8-1.8-1.7-2.6 2.8-2.8 2.6 1.7 1.8-.8zM13 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>Paramètres</button>
+  </nav>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+
+/* ---------- Réglages (mémorisés sur l'appareil) ---------- */
+var store={
+  get:function(k,d){try{var v=localStorage.getItem('chauffdoc:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set:function(k,v){try{localStorage.setItem('chauffdoc:'+k,JSON.stringify(v))}catch(e){}}
+};
+var settings={sound:store.get('sound',true),vibe:store.get('vibe',true),unit:store.get('unit','m3'),sens:store.get('sens','normale'),leak:store.get('leak',0.001)};
+
+function applySettings(){
+  $('#swSound').setAttribute('aria-checked',settings.sound);
+  $('#swVibe').setAttribute('aria-checked',settings.vibe);
+  $('#btnSound').setAttribute('aria-pressed',settings.sound);
+  $('#btnVibe').setAttribute('aria-pressed',settings.vibe);
+  $('#soundLbl').textContent=settings.sound?'Son activé':'Son coupé';
+  $('#vibeLbl').textContent=settings.vibe?'Vibration activée':'Vibration coupée';
+  $$('#unitSeg button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.u===settings.unit)});
+  $$('#sensSeg button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===settings.sens)});
+  $$('#leakSeg button').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.l===settings.leak)});
+  renderGas();
+}
+function toggle(key){settings[key]=!settings[key];store.set(key,settings[key]);applySettings()}
+$('#swSound').onclick=$('#btnSound').onclick=function(){toggle('sound')};
+$('#swVibe').onclick=$('#btnVibe').onclick=function(){toggle('vibe')};
+$$('#unitSeg button').forEach(function(b){b.onclick=function(){
+  if(settings.unit===b.dataset.u)return;
+  settings.unit=b.dataset.u;store.set('unit',settings.unit);
+  $('#gStart').value='';$('#gEnd').value='';gas.finished=false;applySettings();
+}});
+$$('#sensSeg button').forEach(function(b){b.onclick=function(){settings.sens=b.dataset.v;store.set('sens',settings.sens);applySettings()}});
+$$('#leakSeg button').forEach(function(b){b.onclick=function(){settings.leak=+b.dataset.l;store.set('leak',settings.leak);applySettings()}});
+$$('[data-more]').forEach(function(b){b.onclick=function(){
+  var p=$('#more-'+b.dataset.more),open=p.hidden;p.hidden=!open;b.setAttribute('aria-expanded',open);
+}});
+
+/* ---------- Sons et vibrations ---------- */
+var actx=null;
+function beep(freqs){
+  if(!settings.sound)return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended')actx.resume();
+    var t=actx.currentTime;
+    (freqs||[880,1175]).forEach(function(f,i){
+      var o=actx.createOscillator(),g=actx.createGain(),s=t+i*0.18;
+      o.type='sine';o.frequency.value=f;o.connect(g);g.connect(actx.destination);
+      g.gain.setValueAtTime(0.0001,s);g.gain.exponentialRampToValueAtTime(0.25,s+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s+0.16);
+      o.start(s);o.stop(s+0.18);
+    });
+  }catch(e){}
+}
+function buzz(p){if(settings.vibe&&navigator.vibrate){try{navigator.vibrate(p||[120])}catch(e){}}}
+
+/* ---------- Navigation ---------- */
+var current='home';
+function go(name){
+  if(current==='magnetic'&&name!=='magnetic')cancelMag();
+  current=name;
+  $$('.screen').forEach(function(s){s.hidden=(s.id!=='tab-'+name)});
+  $$('.nav button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===name)});
+  $('#screens').scrollTop=0;
+  if(name==='magnetic'){renderMag();renderLive()}
+}
+$$('.nav button').forEach(function(b){b.onclick=function(){go(b.dataset.tab)}});
+$$('[data-go]').forEach(function(b){b.onclick=function(){go(b.dataset.go)}});
+
+/* ---------- Icônes ---------- */
+var ICON={
+  ok:'<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#1a8f3c"/><path d="M12 23l7 7 13-14" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ko:'<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#e0202c"/><path d="M14 14l16 16M30 14 14 30" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/></svg>',
+  info:'<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#12305e"/><path d="M22 20v12" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/><circle cx="22" cy="13" r="2.8" fill="#fff"/></svg>',
+  play:'<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#ff6a13"/><path d="M13 9.5v13l10-6.5z" fill="#fff"/></svg>',
+  spin:'<svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="#ff6a13" stroke-width="3.5" stroke-linecap="round" aria-hidden="true"><path d="M16 4a12 12 0 1 1-11 7.5"/></svg>'
+};
+
+/* ---------- Magnetic Tool ---------- */
+var TEST_MS=12000, WAVE_N=150, WINDOW_MS=2000, DEBOUNCE_MS=350, GRACE_MS=900;
+var THR={faible:1.6,normale:0.8,elevee:0.4};
+var mag={state:'idle',sensor:null,buf:[],wave:[],field:null,sd:0,live:false,pending:false,pendingSince:0,activeMs:0,last:0,verdict:false,err:'',demo:false,timer:null,iv:null,raf:0,t0:0};
+var fanEl=$('#fan'),wave=$('#wave');
+
+function resetMag(){mag.buf=[];mag.wave=[];mag.field=null;mag.sd=0;mag.live=false;mag.pending=false;mag.pendingSince=0;mag.activeMs=0;mag.last=0;mag.verdict=false;mag.err=''}
+
+function push(x,y,z,now){
+  var b=mag.buf,m=Math.sqrt(x*x+y*y+z*z);
+  b.push({t:now,x:x,y:y,z:z});
+  while(b.length&&now-b[0].t>WINDOW_MS)b.shift();
+  mag.field=mag.field===null?m:mag.field*0.75+m*0.25;
+  mag.wave.push(m);if(mag.wave.length>WAVE_N)mag.wave.shift();
+  var dt=mag.last?Math.min(now-mag.last,100):0;mag.last=now;
+  if(b.length<10)return;
+  var n=b.length,mx=0,my=0,mz=0,v=0,i,p;
+  for(i=0;i<n;i++){p=b[i];mx+=p.x;my+=p.y;mz+=p.z}
+  mx/=n;my/=n;mz/=n;
+  for(i=0;i<n;i++){p=b[i];v+=(p.x-mx)*(p.x-mx)+(p.y-my)*(p.y-my)+(p.z-mz)*(p.z-mz)}
+  var sd=Math.sqrt(v/n);
+  /* lissage plus fort : une lecture isolée ne fait plus bouger le seuil */
+  mag.sd=mag.sd?mag.sd*0.85+sd*0.15:sd;
+
+  var thr=THR[settings.sens];
+  /* bande d'hystérésis : on ne recalcule un nouvel état candidat que hors de la zone grise */
+  var candidate=mag.sd>thr?true:(mag.sd<thr*0.6?false:mag.pending);
+  if(candidate!==mag.pending){mag.pending=candidate;mag.pendingSince=now}
+  /* anti-rebond : il faut que l'état candidat tienne DEBOUNCE_MS avant d'être adopté */
+  var stable=(now-mag.pendingSince>=DEBOUNCE_MS)?candidate:mag.live;
+  /* phase de stabilisation en début de test : le mouvement d'approche du téléphone
+     ne compte pas dans la mesure, pour éviter un faux positif au démarrage */
+  var inGrace=(now-mag.t0)<GRACE_MS;
+  var was=mag.live;
+  mag.live=stable;
+  if(mag.live&&!inGrace)mag.activeMs+=dt;
+  if(mag.live!==was){
+    if(mag.live&&!inGrace){beep();buzz([150])}
+    renderMag();
+  }
+}
+
+function fail(name){
+  var msg;
+  if(name==='nosensor')msg="Ce navigateur ne donne pas accès au capteur magnétique. Utilisez Chrome sur Android.";
+  else if(name==='SecurityError'||name==='NotAllowedError')msg="L'accès au capteur est bloqué ici. Ouvrez cette page directement dans Chrome.";
+  else if(name==='NotReadableError'||name==='NotFoundError')msg="Aucun capteur magnétique utilisable sur ce téléphone.";
+  else msg="Impossible de lire le capteur magnétique.";
+  cancelMag();resetMag();mag.err=msg;mag.state='error';renderMag();renderLive();
+}
+
+function stopSources(){
+  if(mag.sensor){try{mag.sensor.stop()}catch(e){}mag.sensor=null}
+  clearInterval(mag.iv);clearTimeout(mag.timer);cancelAnimationFrame(mag.raf);
+}
+function cancelMag(){stopSources();if(mag.state==='running')mag.state='idle';if(mag.demo&&mag.state==='idle')mag.demo=false;renderMag();renderLive()}
+
+/* Pont natif Android : l'appli Android (WebView) injecte window.AndroidApp
+   et pousse les lectures du capteur via window.__nativeMag(x,y,z). */
+window.__nativeMag=function(x,y,z){push(x,y,z,performance.now())};
+
+function startTest(demo){
+  stopSources();resetMag();mag.demo=!!demo;
+  beep([1]);/* débloque l'audio sur le geste de l'utilisateur */
+  if(demo){
+    var t0=performance.now();
+    mag.iv=setInterval(function(){
+      var t=(performance.now()-t0)/1000,a=t>1.5?2.2*Math.sin(t*9)+1.2*Math.sin(t*23):0,r=function(){return Math.random()*0.15};
+      push(18+a+r(),-12+a*0.6+r(),41+a*0.4+r(),performance.now());
+    },33);
+  }else if(window.AndroidApp&&window.AndroidApp.startMag){
+    try{window.AndroidApp.startMag()}catch(e){fail('nosensor');return}
+    mag.sensor={stop:function(){try{window.AndroidApp.stopMag()}catch(e){}}};
+  }else{
+    if(!('Magnetometer' in window)){fail('nosensor');return}
+    try{
+      var s=new Magnetometer({frequency:30});
+      s.addEventListener('reading',function(){push(s.x||0,s.y||0,s.z||0,performance.now())});
+      s.addEventListener('error',function(e){if(mag.state==='running')fail(e.error&&e.error.name)});
+      mag.sensor=s;mag.state='running';s.start();
+    }catch(e){fail(e&&e.name);return}
+  }
+  mag.state='running';mag.t0=performance.now();
+  mag.timer=setTimeout(finishTest,TEST_MS);
+  renderMag();frame();
+}
+function finishTest(){
+  mag.verdict=mag.activeMs>=1500;
+  stopSources();mag.state='done';
+  if(!mag.verdict)buzz([80,60,80]);
+  renderMag();renderLive();
+}
+function frame(){
+  renderLive();
+  if(mag.state==='running')mag.raf=requestAnimationFrame(frame);
+}
+
+function renderMag(){
+  var cls='',icon=ICON.info,title='Prêt à tester',sub='Lancez le test, puis approchez le téléphone du circulateur.',spin=false;
+  var simu=mag.demo?' (simulation)':'';
+  if(mag.state==='running'){
+    if(mag.live){cls='ok';icon=ICON.ok;title='Activité magnétique détectée';sub='Le circulateur semble tourner.'+simu;spin=true}
+    else{title='Analyse en cours…';sub='Gardez le téléphone immobile contre le circulateur.'+simu}
+  }else if(mag.state==='done'){
+    if(mag.verdict){cls='ok';icon=ICON.ok;title='Activité magnétique détectée';sub='Le circulateur semble tourner.'+simu;spin=true}
+    else{cls='ko';icon=ICON.ko;title='Aucune activité détectée';sub='Aucun mouvement magnétique détectable.'+simu}
+  }else if(mag.state==='error'){cls='ko';icon=ICON.ko;title='Capteur indisponible';sub=mag.err}
+  var card=$('#magCard');card.className='status'+(cls?' '+cls:'');
+  $('#magIcon').innerHTML=icon;$('#magTitle').textContent=title;$('#magSub').textContent=sub;
+  fanEl.setAttribute('data-on',spin?'1':'0');
+  $('#btnDemo').hidden=mag.state!=='error';
+  var running=mag.state==='running';
+  $('#testIcon').innerHTML=running?ICON.spin:(mag.state==='done'?ICON.play:ICON.play);
+  $('#testLbl').textContent=running?'Test en cours…':(mag.state==='done'||mag.state==='error'?'Relancer un test':'Lancer le test');
+  $('#testProgWrap').hidden=!running;
+  $('#btnTest').setAttribute('aria-label',running?'Test en cours, toucher pour arrêter':$('#testLbl').textContent);
+}
+
+function fmt(n,min,max){return n.toLocaleString('fr-FR',{minimumFractionDigits:min,maximumFractionDigits:max})}
+function renderLive(){
+  var has=mag.field!==null&&(mag.state==='running'||mag.state==='done');
+  $('#fieldVal').textContent=has?Math.round(mag.field):'–';
+  $('#fieldSub').textContent='Variation : '+(has&&mag.sd?'± '+fmt(mag.sd,1,1)+' µT':'–');
+  var thr=THR[settings.sens],lit=0;
+  if(has){lit=1;if(mag.sd>=thr*0.6)lit=2;if(mag.sd>=thr*1.5)lit=3}
+  $$('#bars i').forEach(function(el,i){el.classList.toggle('on',i<lit)});
+  if(mag.state==='running')$('#testProg').style.width=Math.min(100,(performance.now()-mag.t0)/TEST_MS*100)+'%';
+  drawWave();
+}
+function drawWave(){
+  var c=wave,dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;
+  if(!w||!h)return;
+  if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+  var g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  g.lineWidth=2;g.lineJoin='round';g.strokeStyle='#ff6a13';g.beginPath();
+  var d=mag.wave,n=d.length,mean=0,i;
+  for(i=0;i<n;i++)mean+=d[i];mean=n?mean/n:0;
+  var scale=(h*0.42)/(THR[settings.sens]*5),step=w/(WAVE_N-1),off=WAVE_N-n;
+  for(i=0;i<WAVE_N;i++){
+    var v=i<off?0:(d[i-off]-mean),y=h/2-Math.max(-h*0.45,Math.min(h*0.45,v*scale));
+    if(i===0)g.moveTo(0,y);else g.lineTo(i*step,y);
+  }
+  g.stroke();
+}
+$('#btnTest').onclick=function(){if(mag.state==='running')cancelMag();else startTest(false)};
+$('#btnDemo').onclick=function(){startTest(true)};
+window.addEventListener('resize',function(){if(current==='magnetic')drawWave()});
+document.addEventListener('visibilitychange',function(){if(document.hidden&&mag.state==='running')cancelMag()});
+
+/* ---------- Top Compteur gaz ---------- */
+var gas={dur:60,running:false,end:0,iv:null,finished:false};
+var gStart=$('#gStart'),gEnd=$('#gEnd');
+
+function num(s){s=String(s).replace(/\s/g,'').replace(',','.');if(s==='')return NaN;return Number(s)}
+function durLabel(s){return s<60?s+' s':(s/60)+' min'}
+function clock(s){s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+
+[gStart,gEnd].forEach(function(el){el.addEventListener('input',function(){
+  el.value=el.value.replace(/[^0-9.,\s]/g,'');renderGas();
+})});
+$$('#durations button').forEach(function(b){b.onclick=function(){
+  if(gas.running)return;gas.dur=+b.dataset.s;gas.finished=false;renderGas();
+}});
+
+function computeGas(){
+  var a=num(gStart.value),b=num(gEnd.value);
+  if(!isFinite(a)||!isFinite(b))return {s:'empty'};
+  if(b<a)return {s:'err'};
+  var diff=Math.round((b-a)*1000)/1000,m3=settings.unit==='m3'?diff:diff/1000,L=settings.unit==='m3'?diff*1000:diff;
+  return {s:'ok',diff:diff,m3:m3,L:L};
+}
+
+function renderGas(){
+  var u=settings.unit==='m3'?'m³':'L';
+  $('#uStart').textContent=u;$('#uEnd').textContent=u;
+  $$('#durations button').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.s===gas.dur);b.disabled=gas.running});
+  var r=computeGas(),box=$('#gResult'),html='';
+  if(r.s==='ok'){
+    var bad=r.m3>settings.leak;
+    box.className='result '+(bad?'ko':'ok');
+    var big=settings.unit==='m3'?fmt(r.m3,3,3)+' m³':fmt(r.L,0,1)+' L';
+    var small=r.diff===0?'Aucune consommation mesurée':(settings.unit==='m3'?'Soit '+fmt(r.L,0,1)+' litre'+(r.L>=2?'s':''):'Soit '+fmt(r.m3,3,3)+' m³');
+    var verdict=bad?'Écart anormal — fuite possible':'Écart normal';
+    html='<div class="row"><div class="bars" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></div><div><div class="k" style="font-weight:600;color:'+(bad?'var(--ko)':'var(--ok)')+'">'+verdict+'</div><div class="big">'+big+'</div><div class="k">'+small+'</div></div></div>';
+    if(r.diff>0){
+      var m3h=r.m3/(gas.dur/3600),Lmin=r.L/(gas.dur/60);
+      html+='<div class="flow">Débit sur '+durLabel(gas.dur)+' : <b>'+fmt(m3h,2,2)+' m³/h</b>, soit '+fmt(Lmin,1,1)+' L/min</div>';
+    }
+    html+='<div class="flow">Seuil considéré normal : jusqu\'à '+fmt(settings.leak*1000,1,1)+' L sur ce test.</div>';
+  }else if(r.s==='err'){
+    box.className='result ko';
+    html='<p class="msg">L\'index de fin doit être supérieur ou égal à l\'index de départ.</p>';
+  }else{
+    box.className='result';
+    html='<p class="msg">Saisissez les deux index : l\'écart mesuré s\'affiche ici automatiquement.</p>';
+  }
+  box.innerHTML=html;
+
+  var t=$('#gTimerCard');t.hidden=!(gas.running||gas.finished);
+  var btn=$('#gBtn'),run=gas.running;
+  if(run){btn.innerHTML=ICON_STOP+'Arrêter le test'}
+  else if(r.s==='ok'){btn.innerHTML=ICON_REFRESH+'Lancer un nouveau test'}
+  else{btn.innerHTML=ICON_PLAY+'Lancer le test ('+durLabel(gas.dur)+')'}
+}
+var ICON_PLAY='<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+var ICON_STOP='<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
+var ICON_REFRESH='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5"/></svg>';
+
+function stopGasTimer(){clearInterval(gas.iv);gas.running=false}
+function tickGas(){
+  var left=(gas.end-Date.now())/1000;
+  $('#gTime').textContent=clock(left);
+  $('#gProg').style.width=Math.min(100,(1-left/gas.dur)*100)+'%';
+  if(left<=0){
+    stopGasTimer();gas.finished=true;
+    $('#gTime').textContent='00:00';$('#gProg').style.width='100%';
+    $('#gTimeMsg').textContent='Temps écoulé. Relevez maintenant l\'index de fin.';
+    beep([880,1175,1568]);buzz([200,100,200]);
+    renderGas();gEnd.focus();
+  }
+}
+$('#gBtn').onclick=function(){
+  var r=computeGas();
+  if(gas.running){stopGasTimer();gas.finished=false;renderGas();return}
+  if(r.s==='ok'){ /* nouveau test : on remet tout à zéro */
+    gStart.value='';gEnd.value='';gas.finished=false;renderGas();gStart.focus();return;
+  }
+  if(!isFinite(num(gStart.value))){gStart.focus();return}
+  gEnd.value='';gas.finished=false;gas.running=true;gas.end=Date.now()+gas.dur*1000;
+  $('#gTimeMsg').textContent='Ne touchez pas au compteur, le test est en cours.';
+  beep([1]);renderGas();tickGas();gas.iv=setInterval(tickGas,250);
+};
+
+/* ---------- Accueil : état du capteur ---------- */
+(function(){
+  var ok=('Magnetometer' in window)||!!(window.AndroidApp&&window.AndroidApp.startMag);
+  $('#sensorDot').classList.toggle('on',ok);
+  $('#sensorTxt').textContent=ok?'Capteur magnétique disponible':'Capteur magnétique non disponible';
+  $('#sensorHint').textContent=ok?'':"Sur Android, ouvrez cette page dans Chrome. Le capteur peut nécessiter l'option « Generic Sensor Extra Classes » dans chrome://flags.";
+})();
+
+applySettings();renderMag();renderLive();
+})();
+</script>
+</body>
+</html>

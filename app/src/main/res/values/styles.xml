@@ -1,10 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-<style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
-    <item name="android:fontFamily">sans</item>
-    <item name="android:colorAccent">#FF6900</item>
-    <item name="android:statusBarColor">#062F5D</item>
-    <item name="android:navigationBarColor">#062F5D</item>
-    <item name="android:windowLightStatusBar">false</item>
-</style>
+    <style name="Theme.ChauffDoc" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#0C2447</item>
+        <item name="android:windowBackground">#0C2447</item>
+    </style>
 </resources>
