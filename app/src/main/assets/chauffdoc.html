@@ -168,6 +168,13 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .tool b{display:block;font-size:1.05rem;font-weight:700}
 .tool span{display:block;font-size:.84rem;color:var(--muted);margin-top:1px}
 .tool .go{flex:none;width:18px;height:18px;color:var(--muted)}
+.tool.recap{align-items:center}
+.tool.recap>div{flex:1;min-width:0}
+.recap-row{display:flex;align-items:center;gap:8px;margin-top:3px;font-size:.86rem;font-weight:600;color:var(--muted)}
+.recap-row .dot{box-shadow:0 0 0 4px var(--card)}
+.recap-row .dot.on{background:var(--ok);box-shadow:0 0 0 4px var(--ok-bg)}
+.recap-row .dot.bad{background:var(--ko);box-shadow:0 0 0 4px var(--ko-bg)}
+.recap-time{display:block;font-size:.74rem;color:var(--muted);margin-top:2px}
 .sensor{display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--ko);flex:none;box-shadow:0 0 0 4px var(--ko-bg)}
 .dot.on{background:var(--ok);box-shadow:0 0 0 4px var(--ok-bg)}
@@ -229,25 +236,39 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 
     <!-- ACCUEIL -->
     <section class="screen" id="tab-home" role="tabpanel">
-      <h1 class="hello">Vos outils de diagnostic</h1>
-      <p class="lead">Deux mesures rapides pour vérifier une chaudière sur le terrain.</p>
+      <h1 class="hello">Bonjour 👋</h1>
+      <p class="lead">Voici l'état de vos derniers diagnostics.</p>
 
-      <button class="tool" data-go="magnetic">
+      <button class="tool recap" data-go="magnetic">
         <div class="badge"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v11a9 9 0 0 0 18 0V5"/><path d="M4 9h6M22 9h6" stroke="#fff"/></svg></div>
-        <div><b>Magnetic Tool</b><span>Le circulateur tourne-t-il ?</span></div>
+        <div>
+          <b>Magnetic Tool</b>
+          <div class="recap-row"><span class="dot" id="magRecapDot"></span><span id="magRecapTxt">Aucun test effectué</span></div>
+          <span class="recap-time" id="magRecapTime"></span>
+        </div>
         <svg class="go" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3l7 7-7 7"/></svg>
       </button>
-      <button class="tool" data-go="gas">
+      <button class="tool recap" data-go="gas">
         <div class="badge"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="18" r="10"/><path d="M13 3h6M16 18l4-6"/></svg></div>
-        <div><b>Top Compteur gaz</b><span>Écart et débit entre deux index</span></div>
+        <div>
+          <b>Top Compteur gaz</b>
+          <div class="recap-row"><span class="dot" id="gasRecapDot"></span><span id="gasRecapTxt">Aucun relevé effectué</span></div>
+          <span class="recap-time" id="gasRecapTime"></span>
+        </div>
         <svg class="go" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3l7 7-7 7"/></svg>
       </button>
 
-      <div class="card">
+      <div class="card info" style="margin-top:4px">
+        <span class="i">i</span>
+        <p>Retrouvez les deux outils de mesure à tout moment via les onglets en bas de l'écran.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
         <div class="sensor"><span class="dot" id="sensorDot"></span><span id="sensorTxt">Capteur magnétique</span></div>
         <p class="hint" id="sensorHint"></p>
       </div>
     </section>
+
 
     <!-- MAGNETIC TOOL -->
     <section class="screen" id="tab-magnetic" role="tabpanel" hidden>
@@ -497,6 +518,7 @@ function go(name){
   $$('.nav button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===name)});
   $('#screens').scrollTop=0;
   if(name==='magnetic'){renderMag();renderLive()}
+  if(name==='home')renderHome();
 }
 $$('.nav button').forEach(function(b){b.onclick=function(){go(b.dataset.tab)}});
 $$('[data-go]').forEach(function(b){b.onclick=function(){go(b.dataset.go)}});
@@ -600,6 +622,7 @@ function finishTest(){
   mag.verdict=mag.activeMs>=1500;
   stopSources();mag.state='done';
   if(!mag.verdict)buzz([80,60,80]);
+  if(!mag.demo)store.set('lastMag',{ok:mag.verdict,ts:Date.now()});
   renderMag();renderLive();
 }
 function frame(){
@@ -699,6 +722,7 @@ function renderGas(){
       html+='<div class="flow">Débit sur '+durLabel(gas.dur)+' : <b>'+fmt(m3h,2,2)+' m³/h</b>, soit '+fmt(Lmin,1,1)+' L/min</div>';
     }
     html+='<div class="flow">Seuil considéré normal : jusqu\'à '+fmt(settings.leak*1000,1,1)+' L sur ce test.</div>';
+    if(gas.finished)store.set('lastGas',{ok:!bad,m3:r.m3,unit:settings.unit,ts:Date.now()});
   }else if(r.s==='err'){
     box.className='result ko';
     html='<p class="msg">L\'index de fin doit être supérieur ou égal à l\'index de départ.</p>';
@@ -743,7 +767,7 @@ $('#gBtn').onclick=function(){
   beep([1]);renderGas();tickGas();gas.iv=setInterval(tickGas,250);
 };
 
-/* ---------- Accueil : état du capteur ---------- */
+/* ---------- Accueil : état du capteur + résumé des derniers tests ---------- */
 (function(){
   var ok=('Magnetometer' in window)||!!(window.AndroidApp&&window.AndroidApp.startMag);
   $('#sensorDot').classList.toggle('on',ok);
@@ -751,7 +775,39 @@ $('#gBtn').onclick=function(){
   $('#sensorHint').textContent=ok?'':"Sur Android, ouvrez cette page dans Chrome. Le capteur peut nécessiter l'option « Generic Sensor Extra Classes » dans chrome://flags.";
 })();
 
-applySettings();renderMag();renderLive();
+function timeAgo(ts){
+  var s=Math.max(0,Math.round((Date.now()-ts)/1000));
+  if(s<60)return "à l'instant";
+  var m=Math.round(s/60);if(m<60)return 'il y a '+m+' min';
+  var h=Math.round(m/60);if(h<24)return 'il y a '+h+' h';
+  var d=Math.round(h/24);if(d<7)return 'il y a '+d+' j';
+  return new Date(ts).toLocaleDateString('fr-FR');
+}
+function renderHome(){
+  var m=store.get('lastMag',null);
+  if(m){
+    $('#magRecapDot').className='dot '+(m.ok?'on':'bad');
+    $('#magRecapTxt').textContent=m.ok?'Circulateur détecté en marche':'Aucune activité détectée';
+    $('#magRecapTime').textContent=timeAgo(m.ts);
+  }else{
+    $('#magRecapDot').className='dot';
+    $('#magRecapTxt').textContent='Aucun test effectué';
+    $('#magRecapTime').textContent='';
+  }
+  var g=store.get('lastGas',null);
+  if(g){
+    $('#gasRecapDot').className='dot '+(g.ok?'on':'bad');
+    var val=g.unit==='m3'?fmt(g.m3,3,3)+' m³':fmt(g.m3*1000,0,1)+' L';
+    $('#gasRecapTxt').textContent=(g.ok?'Écart normal — ':'Écart anormal — ')+val;
+    $('#gasRecapTime').textContent=timeAgo(g.ts);
+  }else{
+    $('#gasRecapDot').className='dot';
+    $('#gasRecapTxt').textContent='Aucun relevé effectué';
+    $('#gasRecapTime').textContent='';
+  }
+}
+
+applySettings();renderMag();renderLive();renderHome();
 })();
 </script>
 </body>
